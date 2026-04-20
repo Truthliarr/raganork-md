@@ -44,46 +44,50 @@ function applySQLiteResilience(sequelizeInstance) {
     }
   });
 
-  const originalQuery = sequelizeInstance.query.bind(sequelizeInstance);
-  const writeQueue = [];
-  let queueActive = false;
+ const originalQuery = sequelizeInstance.query.bind(sequelizeInstance);
+const writeQueue = [];
+let queueActive = false;
 
-  const flushQueue = async () => {
-    if (queueActive || writeQueue.length === 0) {
-      return;
+const flushQueue = async () => {
+  if (queueActive || writeQueue.length === 0) {
+    return;
+  }
+
+  queueActive = true;
+
+  while (writeQueue.length > 0) {
+    const { task, resolve, reject } = writeQueue.shift();
+    try {
+      const result = await task();
+      resolve(result);
+    } catch (error) {
+      reject(error);
     }
+  }
 
-    queueActive = true;
+  queueActive = false;
+};
 
-    while (writeQueue.length > 0) {
-      const { task, resolve, reject } = writeQueue.shift();
-      try {
-        const result = await task();
-        resolve(result);
-      } catch (error) {
-        reject(error);
-      }
-    }
+const isWriteQuery = (sql) => {
+  if (!sql || typeof sql !== "string") return true;
+  const normalizedSql = sql.trim().toUpperCase();
+  return (
+    normalizedSql.startsWith("INSERT") ||
+    normalizedSql.startsWith("UPDATE") ||
+    normalizedSql.startsWith("DELETE") ||
+    normalizedSql.startsWith("CREATE") ||
+    normalizedSql.startsWith("ALTER") ||
+    normalizedSql.startsWith("DROP") ||
+    normalizedSql.startsWith("PRAGMA")
+  );
+};
 
-    queueActive = false;
-  };
+// Skip serialization for non-SQLite (PostgreSQL, etc.)
+// Only apply serialization to SQLite which has locking issues
+const shouldSerialize = DATABASE_URL === "./bot.db";
 
-  const isWriteQuery = (sql) => {
-    if (!sql || typeof sql !== "string") return true; // default to safe mode
-    const normalizedSql = sql.trim().toUpperCase();
-    return (
-      normalizedSql.startsWith("INSERT") ||
-      normalizedSql.startsWith("UPDATE") ||
-      normalizedSql.startsWith("DELETE") ||
-      normalizedSql.startsWith("CREATE") ||
-      normalizedSql.startsWith("ALTER") ||
-      normalizedSql.startsWith("DROP") ||
-      normalizedSql.startsWith("PRAGMA")
-    );
-  };
-
+if (shouldSerialize) {
   sequelizeInstance.query = function serializedQuery(sql, ...rest) {
-    // only queue writes; reads can run concurrently
     if (!isWriteQuery(sql)) {
       return originalQuery(sql, ...rest);
     }
