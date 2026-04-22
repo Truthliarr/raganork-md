@@ -53,14 +53,13 @@ const sequelize = (() => {
       statement_timeout: 30000,
     },
     logging: DEBUG,
-    pool: {
-      max: 20,
-      min: 2,
-      acquire: 30000,
-      idle: 30000,
-      evict: 15000,
-      validate: true,
-    },
+pool: {
+  max: 20,
+  min: 2,
+  acquire: 30000,
+  idle: 30000,
+  evict: 15000,
+},
     retry: {
       match: [/savepoint.*does not exist/, /connection refused/, /ECONNREFUSED/, /ETIMEDOUT/],
       max: 3,
