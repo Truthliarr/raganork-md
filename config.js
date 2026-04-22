@@ -48,13 +48,22 @@ const sequelize = (() => {
   }
 
   return new Sequelize(DATABASE_URL, {
-    dialectOptions: { ssl: { require: true, rejectUnauthorized: false } },
+    dialectOptions: { 
+      ssl: { require: true, rejectUnauthorized: false },
+      statement_timeout: 30000,
+    },
     logging: DEBUG,
     pool: {
       max: 20,
-      min: 5,
+      min: 2,
       acquire: 30000,
-      idle: 10000,
+      idle: 30000,
+      evict: 15000,
+      validate: true,
+    },
+    retry: {
+      match: [/savepoint.*does not exist/, /connection refused/, /ECONNREFUSED/, /ETIMEDOUT/],
+      max: 3,
     },
   });
 })();
@@ -212,7 +221,8 @@ const baseConfig = {
   isVPS,
   isRailway,
   AUTOMUTE_MSG:
-    process.env.AUTOMUTE_MSG || "_Group automuted!_\n_(edit AUTOMUTE_MSG)_",
+    process.env.AUTOMUTE_MSG || "_Group automuted!_
+_(edit AUTOMUTE_MSG)_",
   ANTIWORD_WARN: process.env.ANTIWORD_WARN || "",
   ANTI_SPAM: process.env.ANTI_SPAM || "919074309534-1632403322@g.us",
   MULTI_HANDLERS: convertToBool(process.env.MULTI_HANDLERS) || false,
@@ -227,7 +237,8 @@ const baseConfig = {
   ANTISPAM_COUNT: process.env.ANTISPAM_COUNT || "6/10",
   AUTOUNMUTE_MSG:
     process.env.AUTOUNMUTE_MSG ||
-    "_Group auto unmuted!_\n_(edit AUTOUNMUTE_MSG)_",
+    "_Group auto unmuted!_
+_(edit AUTOUNMUTE_MSG)_",
   AUTO_READ_STATUS: convertToBool(process.env.AUTO_READ_STATUS) || false,
   READ_MESSAGES: convertToBool(process.env.READ_MESSAGES) || false,
   PMB_VAR: convertToBool(process.env.PMB_VAR) || false,
@@ -243,7 +254,7 @@ const baseConfig = {
     "78c84c62b32a88e86daf87dd509a657a",
   ],
   RG: process.env.RG || "919074309534-1632403322@g.us,120363116963909366@g.us",
-  BOT_INFO: process.env.BOT_INFO || "𝖱𝖺𝗀𝖆𝗇𝗈𝗋𝗄;𝖱𝗒𝗓𝖾𝗇;default",
+  BOT_INFO: process.env.BOT_INFO || "𝖱𝖆𝗀𝖺𝗇𝗈𝗋𝗄;𝖱𝗒𝗓𝖾𝗇;default",
   RBG_KEY: process.env.RBG_KEY || "",
   ALLOWED: process.env.ALLOWED || "91,94,2",
   NOT_ALLOWED: process.env.NOT_ALLOWED || "852",
