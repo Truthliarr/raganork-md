@@ -220,9 +220,8 @@ const baseConfig = {
   isKoyeb,
   isVPS,
   isRailway,
-  AUTOMUTE_MSG:
-    process.env.AUTOMUTE_MSG || "_Group automuted!_
-_(edit AUTOMUTE_MSG)_",
+ AUTOMUTE_MSG:
+  process.env.AUTOMUTE_MSG || "_Group automuted!_\n_(edit AUTOMUTE_MSG)_",
   ANTIWORD_WARN: process.env.ANTIWORD_WARN || "",
   ANTI_SPAM: process.env.ANTI_SPAM || "919074309534-1632403322@g.us",
   MULTI_HANDLERS: convertToBool(process.env.MULTI_HANDLERS) || false,
@@ -236,9 +235,8 @@ _(edit AUTOMUTE_MSG)_",
   ANTI_BOT: process.env.ANTI_BOT || "",
   ANTISPAM_COUNT: process.env.ANTISPAM_COUNT || "6/10",
   AUTOUNMUTE_MSG:
-    process.env.AUTOUNMUTE_MSG ||
-    "_Group auto unmuted!_
-_(edit AUTOUNMUTE_MSG)_",
+  process.env.AUTOUNMUTE_MSG ||
+  "_Group auto unmuted!_\n_(edit AUTOUNMUTE_MSG)_",
   AUTO_READ_STATUS: convertToBool(process.env.AUTO_READ_STATUS) || false,
   READ_MESSAGES: convertToBool(process.env.READ_MESSAGES) || false,
   PMB_VAR: convertToBool(process.env.PMB_VAR) || false,
